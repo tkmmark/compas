@@ -469,6 +469,84 @@ class MeshPlotter(Plotter):
         self.facecollection.set_paths(polygons)
         self.facecollection.set_facecolor(facecolors)
 
+# import compas
+from compas.datastructures import Mesh
+import matplotlib.pyplot as plt
+
+def quick_datastructure_plot(datstruct, name='datastructure', show=False):
+    dir_tmp_save = '/Users/tamk/Documents/GitHub/CompasConsolidated/compas_struct_ml/designcases/20191023_basic_rect_bound_case/temp_plots/'
+    mesh = datstruct
+
+    plotter = MeshPlotter(mesh, figsize=(10, 6))
+
+    radius_v = 0.3
+    fontsize = {'v': 6.}
+    colors = {'v': {'fixed': '#ffff00', 'poles': "#FF69B4"},
+              'e': {'ind': '#ffff00'}}
+
+    plotter.draw_vertices(text='key', radius=radius_v, fontsize=fontsize['v'])
+
+    if hasattr(datstruct, 'poles'):
+        poles = mesh.poles()
+        plotter.draw_vertices(text='key', keys=poles, facecolor=colors['v']['poles'], radius=radius_v, fontsize=fontsize['v'])
+
+    vks_fixed = list(datstruct.vertices_where({"is_fixed": True}))
+    if len(vks_fixed) > 0:
+        plotter.draw_vertices(text='key', keys=vks_fixed, facecolor=colors['v']['fixed'], radius=radius_v, fontsize=fontsize['v'])
+
+    plotter.draw_edges()
+
+    eks_ind = list(datstruct.edges_where({'is_ind': True}))
+    if len(eks_ind) > 0:
+        plotter.draw_edges(keys=eks_ind, color=colors['e']['ind'])
+
+    plotter.draw_faces()
+
+    plotter.axes.autoscale()
+    if plotter.tight:
+        plt.tight_layout()
+
+    plt.savefig(dir_tmp_save + name, dpi=plotter.figure_dpi)
+
+    if show:
+        plt.show()
+
+    # plt.clf()
+
+
+import numpy as np
+def quick_datastructure_plot3d(datstruct, name='datastructure', show=False):
+    from mpl_toolkits.mplot3d import Axes3D
+
+    def plot_mesh_3d(mpl_objs, mesh, color='purple', figsize=(10,6)):
+        fig, ax = mpl_objs
+
+        xyz = mesh.get_vertices_attributes(names=['x','y','z'])
+        edges = list(mesh.edges())
+        for _eind, _ekey in enumerate(edges):
+            _x, _y, _z = list([list(_zip) for _zip in zip(*[xyz[_ekey[0]], xyz[_ekey[1]]])])
+
+            _f = abs(mesh.get_edge_attribute(_ekey, name='f'))
+            _lw = np.interp(_f, (0, 10), (1, 8))
+            ax.plot(_x, _y, _z, color=color, linewidth=_lw)
+
+
+        plt.show()
+        fig.tight_layout()
+        fig.show()
+        fig.canvas.draw()
+
+    def initialize_plot(is_3d=False):
+        fig = plt.figure(figsize=plt.figaspect(0.5))
+        if is_3d:
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+        else:
+            ax = fig.add_subplot(111)
+        return fig, ax
+
+    fig, ax = initialize_plot(is_3d=True)
+    plot_mesh_3d((fig, ax), datstruct)
+    return fig, ax
 
 # ==============================================================================
 # Main
@@ -480,6 +558,7 @@ if __name__ == "__main__":
     from compas.datastructures import Mesh
 
     mesh = Mesh.from_obj(compas.get('faces.obj'))
+    quick_datastructure_plot(mesh)
 
     plotter = MeshPlotter(mesh, figsize=(10, 6))
 
