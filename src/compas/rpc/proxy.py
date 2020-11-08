@@ -291,6 +291,7 @@ class Proxy(object):
             pass
 
     def __getattr__(self, name):
+        print('here in getattr ', name)
         if self.package:
             name = "{}.{}".format(self.package, name)
         try:

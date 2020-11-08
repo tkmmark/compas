@@ -274,7 +274,10 @@ class HalfEdge(Datastructure):
                 attr = facedata.get(fkey) or {}
                 self.add_face(vertices, fkey=int(fkey), attr_dict=attr)
             for uv, attr in iter(edgedata.items()):
-                self.edgedata[literal_eval(uv)] = attr or {}
+                uv = literal_eval(uv)
+                uv = sorted(uv)
+                uv = '-'.join([str(uv[0]), str(uv[1])])
+                self.edgedata[uv] = attr or {}
             self._max_vertex = max_vertex
             self._max_face = max_face
 
@@ -1458,10 +1461,10 @@ class HalfEdge(Datastructure):
         KeyError
             If the edge does not exist.
         """
-        u, v = edge
+        u, v = key = edge
         if u not in self.halfedge or v not in self.halfedge[u]:
             raise KeyError(edge)
-        key = "-".join(map(str, sorted(edge)))
+        # key = "-".join(map(str, sorted(edge)))
         if values is not None:
             # use it as a setter
             for name, value in zip(names, values):
@@ -1470,6 +1473,7 @@ class HalfEdge(Datastructure):
         # use it as a getter
         if not names:
             # get the entire attribute dict
+            key = "-".join(map(str, sorted(edge)))
             return EdgeAttributeView(self.default_edge_attributes, self.edgedata.setdefault(key, {}))
         # get only the values of the named attributes
         values = []

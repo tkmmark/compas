@@ -71,7 +71,7 @@ class Base(ABC):
         """str :
         The type of the object in the form of a "2-level" import and a class name.
         """
-        return "{}/{}".format(".".join(self.__class__.__module__.split(".")[:2]), self.__class__.__name__)
+        return "{}/{}".format(".".join(self.__class__.__module__.split(".")[:-1]), self.__class__.__name__)
 
     @abc.abstractproperty
     def data(self):

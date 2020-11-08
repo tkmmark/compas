@@ -4,6 +4,8 @@ from __future__ import division
 
 import json
 
+import compas
+
 
 __all__ = ['DataDecoder', 'DataEncoder']
 
@@ -39,7 +41,6 @@ def cls_from_dtype(dtype):
 class DecoderError(Exception):
     pass
 
-
 class DataEncoder(json.JSONEncoder):
     """Data encoder for custom JSON serialisation with support for COMPAS data structures and geometric primitives.
 
@@ -56,8 +57,11 @@ class DataEncoder(json.JSONEncoder):
             pass
         else:
             return {
-                'dtype': "{}/{}".format(".".join(o.__class__.__module__.split(".")[:2]), o.__class__.__name__),
+                'dtype': "{}/{}".format(".".join(o.__class__.__module__.split(".")[:-1]), o.__class__.__name__),
                 'value': value}
+
+        if hasattr(o, '__next__'):
+            return list(o)
 
         try:
             import numpy as np
