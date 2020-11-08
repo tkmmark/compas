@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - master
@@ -12,6 +14,8 @@ jobs:
   build:
     name: build and deploy docs
     runs-on: ubuntu-latest
+    env:
+      GH_PAT: ${{secrets.GH_PAT}}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -30,7 +34,7 @@ jobs:
         run: |
           invoke docs
           # Get branch/tag/latest name from git
-          GITHUB_REF_REGEX="tags/([0-9a-zA-Z\.\-]+)|(pull/[0-9]+)|heads/(.+)"
+          GITHUB_REF_REGEX="tags/v([0-9a-zA-Z\.\-]+)|(pull/[0-9]+)|heads/(.+)"
           if [[ $GITHUB_REF =~ $GITHUB_REF_REGEX ]]; then
             if [[ $BASH_REMATCH = pull* ]]; then
               BRANCH_OR_TAG=pull_${BASH_REMATCH##*/}
@@ -42,9 +46,9 @@ jobs:
             fi;
           fi;
           echo "Docs will be deployed to https://compas.dev/compas/$BRANCH_OR_TAG"
-          mkdir -p deploy/compas/$BRANCH_OR_TAG && mv -T dist/docs deploy/compas/$BRANCH_OR_TAG/
+          mkdir -p deploy/$BRANCH_OR_TAG && mv -T dist/docs deploy/$BRANCH_OR_TAG/
       - name: Deploy docs
-        if: success()
+        if: success() && env.GH_PAT != ''
         uses: crazy-max/ghaction-github-pages@v2
         with:
           target_branch: gh-pages

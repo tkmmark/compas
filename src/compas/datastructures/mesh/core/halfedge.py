@@ -273,11 +273,12 @@ class HalfEdge(Datastructure):
             for fkey, vertices in iter(face.items()):
                 attr = facedata.get(fkey) or {}
                 self.add_face(vertices, fkey=int(fkey), attr_dict=attr)
-            for uv, attr in iter(edgedata.items()):
-                uv = literal_eval(uv)
-                uv = sorted(uv)
-                uv = '-'.join([str(uv[0]), str(uv[1])])
-                self.edgedata[uv] = attr or {}
+            for edge, attr in iter(edgedata.items()):
+                key = "-".join(map(str, sorted(literal_eval(edge))))
+                if key not in self.edgedata:
+                    self.edgedata[key] = {}
+                if attr:
+                    self.edgedata[key].update(attr)
             self._max_vertex = max_vertex
             self._max_face = max_face
 
@@ -536,19 +537,25 @@ class HalfEdge(Datastructure):
                 del self.facedata[fkey]
         for nbr in nbrs:
             del self.halfedge[nbr][key]
-            if (nbr, key) in self.edgedata:
-                del self.edgedata[nbr, key]
-            if (key, nbr) in self.edgedata:
-                del self.edgedata[key, nbr]
+            edge = "-".join(map(str, sorted([nbr, key])))
+            if edge in self.edgedata:
+                del self.edgedata[edge]
+            # if (nbr, key) in self.edgedata:
+            #     del self.edgedata[nbr, key]
+            # if (key, nbr) in self.edgedata:
+            #     del self.edgedata[key, nbr]
         for nbr in nbrs:
             for n in self.vertex_neighbors(nbr):
                 if self.halfedge[nbr][n] is None and self.halfedge[n][nbr] is None:
                     del self.halfedge[nbr][n]
                     del self.halfedge[n][nbr]
-                    if (nbr, n) in self.edgedata:
-                        del self.edgedata[nbr, n]
-                    if (n, nbr) in self.edgedata:
-                        del self.edgedata[n, nbr]
+                    edge = "-".join(map(str, sorted([nbr, n])))
+                    if edge in self.edgedata:
+                        del self.edgedata[edge]
+                    # if (nbr, n) in self.edgedata:
+                    #     del self.edgedata[nbr, n]
+                    # if (n, nbr) in self.edgedata:
+                    #     del self.edgedata[n, nbr]
         del self.halfedge[key]
         del self.vertex[key]
 
@@ -575,10 +582,9 @@ class HalfEdge(Datastructure):
             if self.halfedge[v][u] is None:
                 del self.halfedge[u][v]
                 del self.halfedge[v][u]
-                if (u, v) in self.edgedata:
-                    del self.edgedata[u, v]
-                if (v, u) in self.edgedata:
-                    del self.edgedata[v, u]
+                edge = "-".join(map(str, sorted([u, v])))
+                if edge in self.edgedata:
+                    del self.edgedata[edge]
         del self.face[fkey]
         if fkey in self.facedata:
             del self.facedata[fkey]
@@ -1464,25 +1470,25 @@ class HalfEdge(Datastructure):
         u, v = key = edge
         if u not in self.halfedge or v not in self.halfedge[u]:
             raise KeyError(edge)
-        # key = "-".join(map(str, sorted(edge)))
         if values is not None:
             # use it as a setter
             for name, value in zip(names, values):
-                self.edge_attribute(key, name, value)
+                self.edge_attribute(edge, name, value)
             return
         # use it as a getter
         if not names:
+            key = "-".join(map(str, sorted(edge)))
             # get the entire attribute dict
             key = "-".join(map(str, sorted(edge)))
             return EdgeAttributeView(self.default_edge_attributes, self.edgedata.setdefault(key, {}))
         # get only the values of the named attributes
         values = []
         for name in names:
-            value = self.edge_attribute(key, name)
+            value = self.edge_attribute(edge, name)
             values.append(value)
         return values
 
-    def edges_attribute(self, name, value=None, edges=None):
+    def edges_attribute(self, name, value=None, keys=None):
         """Get or set an attribute of multiple edges.
 
         Parameters
@@ -1492,7 +1498,7 @@ class HalfEdge(Datastructure):
         value : obj, optional
             The value of the attribute.
             Default is ``None``.
-        edges : list of 2-tuple of int, optional
+        keys : list of edges, optional
             A list of edge identifiers.
 
         Returns
@@ -1506,14 +1512,14 @@ class HalfEdge(Datastructure):
         KeyError
             If any of the edges does not exist.
         """
-        edges = edges or self.edges()
+        edges = keys or self.edges()
         if value is not None:
             for edge in edges:
                 self.edge_attribute(edge, name, value)
             return
         return [self.edge_attribute(edge, name) for edge in edges]
 
-    def edges_attributes(self, names=None, values=None, edges=None):
+    def edges_attributes(self, names=None, values=None, keys=None):
         """Get or set multiple attributes of multiple edges.
 
         Parameters
@@ -1524,7 +1530,7 @@ class HalfEdge(Datastructure):
         values : list of obj, optional
             The values of the attributes.
             Default is ``None``.
-        edges : list of 2-tuple of int, optional
+        keys : list of edges, optional
             A list of edge identifiers.
 
         Returns
@@ -1541,7 +1547,7 @@ class HalfEdge(Datastructure):
         KeyError
             If any of the edges does not exist.
         """
-        edges = edges or self.edges()
+        edges = keys or self.edges()
         if values is not None:
             for edge in edges:
                 self.edge_attributes(edge, names, values)
@@ -1559,8 +1565,8 @@ class HalfEdge(Datastructure):
         -------
         str
         """
-        tpl = "\n".join(["Mesh summary", "============", "- vertices: {}", "- edges: {}", "- faces: {}"])
-        return tpl.format(self.number_of_vertices(), self.number_of_edges(), self.number_of_faces())
+        tpl = "\n".join(["{} summary", "=" * (len(self.name) + len(" summary")), "- vertices: {}", "- edges: {}", "- faces: {}"])
+        return tpl.format(self.name, self.number_of_vertices(), self.number_of_edges(), self.number_of_faces())
 
     def number_of_vertices(self):
         """Count the number of vertices in the mesh."""

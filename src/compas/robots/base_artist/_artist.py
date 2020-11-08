@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import abc
 import itertools
 
 from compas.geometry import Frame
@@ -10,16 +9,13 @@ from compas.geometry import Scale
 from compas.geometry import Transformation
 from compas.robots import Geometry
 
-ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
-
 
 __all__ = [
     'BaseRobotModelArtist'
 ]
 
 
-class AbstractRobotModelArtist(ABC):
-    @abc.abstractmethod
+class AbstractRobotModelArtist(object):
     def transform(self, geometry, transformation):
         """Transforms a CAD-specific geometry using a **COMPAS** transformation.
 
@@ -32,7 +28,6 @@ class AbstractRobotModelArtist(ABC):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
     def draw_geometry(self, geometry, name=None, color=None):
         """Draw a **COMPAS** geometry in the respective CAD environment.
 
@@ -241,9 +236,10 @@ class BaseRobotModelArtist(AbstractRobotModelArtist):
             ``True`` if the collision geometry should be also updated, otherwise ``False``.
             Defaults to ``True``.
         """
-        transformations = self._update(self.model, joint_state, visual, collision)
+        _ = self._update(self.model, joint_state, visual, collision)
         if self.attached_tool_model:
-            self.update_tool(visual=visual, collision=collision, transformation=transformations[self.attached_tool_model.parent_joint_name])
+            frame = self.model.forward_kinematics(joint_state, link_name=self.attached_tool_model.link_name)
+            self.update_tool(visual=visual, collision=collision, transformation=Transformation.from_frame_to_frame(Frame.worldXY(), frame))
 
     def _update(self, model, joint_state, visual=True, collision=True, parent_transformation=None):
         transformations = model.compute_transformations(joint_state, parent_transformation=parent_transformation)

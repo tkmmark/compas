@@ -4,6 +4,8 @@ from __future__ import division
 
 from random import uniform
 from compas.geometry import transform_points
+from compas.geometry import centroid_points
+from compas.geometry import bounding_box
 from compas.geometry import Primitive
 from compas.geometry import Point
 
@@ -93,7 +95,7 @@ class Pointcloud(Primitive):
         return cls(list(map(list, zip(x, y, z))))
 
     @classmethod
-    def from_bbox(cls, box, n):
+    def from_box(cls, box, n):
         """Construct a point cloud within a given box.
 
         Parameters
@@ -124,6 +126,10 @@ class Pointcloud(Primitive):
         z = [uniform(zmin, zmax) for i in range(n)]
         return cls(list(map(list, zip(x, y, z))))
 
+    # @classmethod
+    # def from_shape(cls, shape, n):
+    #     pass
+
     def __repr__(self):
         return 'Pointcloud({})'.format(self.points)
 
@@ -142,6 +148,14 @@ class Pointcloud(Primitive):
 
     def __iter__(self):
         return iter(self.points)
+
+    @property
+    def centroid(self):
+        return centroid_points(self.points)
+
+    @property
+    def bounding_box(self):
+        return bounding_box(self.points)
 
     def transform(self, T):
         for index, point in enumerate(transform_points(self.points, T)):

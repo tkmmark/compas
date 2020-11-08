@@ -208,10 +208,21 @@ class Cylinder(Shape):
     # methods
     # ==========================================================================
 
-    def to_vertices_and_faces(self, **kwargs):
-        """Returns a list of vertices and faces"""
+    def to_vertices_and_faces(self, u=10):
+        """Returns a list of vertices and faces.
 
-        u = kwargs.get('u') or 10
+        Parameters
+        ----------
+        u : int, optional
+            Number of faces in the "u" direction.
+            Default is ``10``.
+
+        Returns
+        -------
+        (vertices, faces)
+            A list of vertex locations and a list of faces,
+            with each face defined as a list of indices into the list of vertices.
+        """
         if u < 3:
             raise ValueError('The value for u should be u > 3.')
 
@@ -275,20 +286,6 @@ class Cylinder(Shape):
 # ==============================================================================
 
 if __name__ == "__main__":
-
-    # from compas.geometry import Transformation
-
-    # cylinder = Cylinder(Circle(Plane.worldXY(), 5), 7)
-    # frame = Frame([1, 1, 1], [0.68, 0.68, 0.27], [-0.67, 0.73, -0.15])
-    # print(frame.normal)
-    # T = Transformation.from_frame(frame)
-    # cylinder.transform(T)
-    # print(cylinder)
-
-    # print(Plane.worldXY().data)
-    # data = {'circle': Circle(Plane.worldXY(), 5).data, 'height': 7.}
-    # cylinder = Cylinder.from_data(data)
-    # print(cylinder)
 
     import doctest
     doctest.testmod()

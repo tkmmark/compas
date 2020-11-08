@@ -147,7 +147,7 @@ class Graph(Datastructure):
         """
         version = LooseVersion(compas.__version__)
         meta = {
-            "compas": ".".join(version.vstring.split('-')[0]),
+            "compas": version.vstring.split('-')[0],
             "datatype": self.dtype,
             "data": None
         }
@@ -467,16 +467,34 @@ class Graph(Datastructure):
         >>>
 
         """
-        for nbr in self.neighbors(key):
-            del self.adjacency[key][nbr]
-            del self.adjacency[nbr][key]
-            if key in self.edge and nbr in self.edge[key]:
-                del self.edge[key][nbr]
-            else:
-                del self.edge[nbr][key]
-        del self.node[key]
-        del self.adjacency[key]
-        del self.edge[key]
+        if key in self.edge:
+            del self.edge[key]
+        if key in self.adjacency:
+            del self.adjacency[key]
+        if key in self.node:
+            del self.node[key]
+        for u in list(self.edge):
+            for v in list(self.edge[u]):
+                if v == key:
+                    del self.edge[u][v]
+            if not self.edge[u]:
+                del self.edge[u]
+        for u in self.adjacency:
+            for v in list(self.adjacency[u]):
+                if v == key:
+                    del self.adjacency[u][v]
+        # for nbr in self.neighbors(key):
+        #     del self.adjacency[key][nbr]
+        #     del self.adjacency[nbr][key]
+        #     if key in self.edge and nbr in self.edge[key]:
+        #         del self.edge[key][nbr]
+        #     else:
+        #         del self.edge[nbr][key]
+        #     if nbr == key:
+        #         del self.edge[nbr]
+        # del self.node[key]
+        # del self.adjacency[key]
+        # del self.edge[key]
 
     def delete_edge(self, u, v):
         """Delete an edge from the network.
@@ -510,8 +528,8 @@ class Graph(Datastructure):
         -------
         str
         """
-        tpl = "\n".join(["Graph summary", "============", "- nodes: {}", "- edges: {}"])
-        return tpl.format(self.number_of_nodes(), self.number_of_edges())
+        tpl = "\n".join(["{} summary", "=" * (len(self.name) + len(" summary")), "- nodes: {}", "- edges: {}"])
+        return tpl.format(self.name, self.number_of_nodes(), self.number_of_edges())
 
     def number_of_nodes(self):
         """Compute the number of nodes of the network.
@@ -552,9 +570,11 @@ class Graph(Datastructure):
         2-tuple
             The next node as a (key, attr) tuple, if ``data`` is ``True``.
         """
-        if data:
-            return iter(self.node.items())
-        return iter(self.node)
+        for key in self.node:
+            if not data:
+                yield key
+            else:
+                yield key, self.node_attributes(key)
 
     def nodes_where(self, conditions, data=False):
         """Get nodes for which a certain condition or set of conditions is true.
@@ -799,6 +819,9 @@ class Graph(Datastructure):
             attr_dict = {}
         attr_dict.update(kwattr)
         self.default_edge_attributes.update(attr_dict)
+
+    update_dna = update_default_node_attributes
+    update_dea = update_default_edge_attributes
 
     # --------------------------------------------------------------------------
     # node attributes
