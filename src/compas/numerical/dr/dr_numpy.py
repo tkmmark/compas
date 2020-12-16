@@ -13,6 +13,7 @@ from scipy.sparse import diags
 from compas.numerical import connectivity_matrix
 from compas.numerical import normrow
 
+import time
 
 __all__ = ['dr_numpy']
 
@@ -236,6 +237,7 @@ def dr_numpy(vertices, edges, fixed, loads, qpre,
             break
         if crit2 < tol2:
             break
+
     return x, q, f, l, r
 
 

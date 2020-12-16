@@ -398,7 +398,7 @@ def mesh_subdivide_catmullclark(mesh, k=1, fixed=None):
 
             else:
                 fnbrs = [mesh.face_centroid(fkey) for fkey in mesh.vertex_faces(key) if fkey is not None]
-                nbrs = [key_xyz[nbr] for nbr in subd.halfedge[key]]
+                nbrs = [key_xyz[nbr] for nbr in mesh.halfedge[key]]
                 n = float(len(nbrs))
                 f = 1.0 / n
                 e = 2.0 / n

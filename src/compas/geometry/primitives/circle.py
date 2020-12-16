@@ -198,5 +198,6 @@ class Circle(Primitive):
 # ==============================================================================
 
 if __name__ == "__main__":
+    Circle(Plane([0, 0, 0], [0, 0, 1]), float('inf'))
     import doctest
     doctest.testmod(globs=globals())

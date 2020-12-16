@@ -105,7 +105,8 @@ def install_plugin(plugin, version=None):
 
     print()
     print('PlugIn {} Installed.'.format(plugin_name))
-    print()
+    print(source)
+    print(destination)
     print('Restart Rhino and open the Python editor at least once to make it available.')
 
 
@@ -121,7 +122,8 @@ if __name__ == "__main__":
         description='COMPAS Rhino PLugin Installation command-line utility.')
 
     parser.add_argument('plugin', help="The path to the plugin directory.")
-    parser.add_argument('-v', '--version', choices=['5.0', '6.0', '7.0'], default='6.0', help="The version of Rhino.")
+    parser.add_argument(
+        '-v', '--version', choices=['5.0', '6.0', '7.0'], default='6.0', help="The version of Rhino.")
 
     args = parser.parse_args()
 

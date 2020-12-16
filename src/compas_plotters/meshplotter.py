@@ -357,27 +357,45 @@ if __name__ == "__main__":
 
     import compas
     from compas.datastructures import Mesh
+    import matplotlib.pyplot as plt
 
-    mesh = Mesh.from_obj(compas.get('faces.obj'))
 
-    plotter = MeshPlotter(mesh, figsize=(10, 6))
+    fig, axes = plt.subplots(1, 2)
 
-    plotter.draw_vertices(text='key', radius=0.2, picker=10)
+    mesh1 = Mesh.from_obj(compas.get('faces.obj'))
+    mesh2 = Mesh.from_obj(compas.get('hypar.obj'))
 
-    for text in plotter.axes.texts:
-        text.set_visible(False)
+    plotter1 = MeshPlotter(mesh1, axes=axes[0])
+    plotter2 = MeshPlotter(mesh2, axes=axes[1])
 
-    plotter.draw_edges()
-    plotter.draw_faces()
+    plotter1 = MeshPlotter(mesh1)
+    plotter1.draw_vertices(text='key', radius=0.2, picker=10)
 
-    def onpick(event):
-        index = event.ind[0]
-        for i, text in enumerate(plotter.axes.texts):
-            if i == index:
-                text.set_visible(True)
-            else:
-                text.set_visible(False)
-        plotter.update()
+    # for text in plotter.axes.texts:
+    #     text.set_visible(False)
+    plotter1.draw_edges()
+    plotter1.draw_faces()
+    plotter1.show()
 
-    plotter.register_listener(onpick)
-    plotter.show()
+    plotter2.draw_vertices(text='key', radius=0.2, picker=10)
+    plotter2.draw_edges()
+    plotter2.draw_faces()
+
+    # def onpick(event):
+    #     index = event.ind[0]
+    #     for i, text in enumerate(plotter.axes.texts):
+    #         if i == index:
+    #             text.set_visible(True)
+    #         else:
+    #             text.set_visible(False)
+    #     plotter.update()
+
+    # plotter.register_listener(onpick)
+
+    # plotter.show()
+
+    axes[0].autoscale()
+    axes[1].autoscale()
+    plt.tight_layout()
+
+    plt.show()

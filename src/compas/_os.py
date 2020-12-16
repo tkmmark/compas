@@ -71,6 +71,7 @@ except:  # noqa: E722
 
 
 def select_python(python_executable):
+
     """Selects the most likely python interpreter to run.
 
     This function detects if there is a conda environment we can use,
@@ -102,6 +103,8 @@ def select_python(python_executable):
             if os.path.exists(python):
                 return python
 
+        print('here')
+        print(python_executable)
     # Assume a system-wide install exists
     return python_executable or 'pythonw'
 

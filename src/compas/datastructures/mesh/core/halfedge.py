@@ -2168,6 +2168,16 @@ class HalfEdge(Datastructure):
             edges.append((previous, current))
         return edges
 
+    def vertices_on_edge_loop(self, uv):
+        edges = self.edge_loop(uv)
+        if len(edges) == 1:
+            return edges[0]
+        vertices = [edge[0] for edge in edges]
+        if edges[-1][1] != edges[0][0]:
+            vertices.append(edges[-1][1])
+        return vertices
+
+        
     def _edge_loop_on_boundary(self, uv):
         """Find all edges on the same loop as a given edge on the boundary."""
         edges = []

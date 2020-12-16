@@ -190,7 +190,7 @@ def delete_objects(guids, purge=None):
 
 def purge_objects(guids):
     """Purge objects from memory.
-
+e
     Parameters
     ----------
     guids : list of GUID
@@ -340,7 +340,7 @@ def select_point(message='Select one point.'):
     GUID
         The identifer of the selected point.
     """
-    return rs.GetObject(message, preselect=True, select=True, group=False, filter=rs.filter.point)
+    return rs.GetObject(message, preselect=True, select=True, filter=rs.filter.point)
 
 
 def select_points(message='Select multiple points.'):

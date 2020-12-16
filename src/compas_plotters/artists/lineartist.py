@@ -101,13 +101,15 @@ if __name__ == '__main__':
     plotter = GeometryPlotter()
 
     a = Point(3.0, 2.0)
-    b = Point(3.0, 5.0)
+    b = Point(6.0, 10.0)
 
     line = Line(a, b)
 
     R = Rotation.from_axis_and_angle(Vector(0.0, 0.0, 1.0), radians(10), point=line.end)
 
     plotter.add(line, draw_points=True, draw_as_segment=False)
+    plotter.show()
+    
     plotter.redraw(pause=1.0)
 
     for i in range(9):

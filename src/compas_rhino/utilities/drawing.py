@@ -65,6 +65,7 @@ try:
 except SystemError:
     find_layer_by_fullpath = None
 
+import Rhino
 
 __all__ = [
     'draw_labels',

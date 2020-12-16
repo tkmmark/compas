@@ -5,7 +5,6 @@ compas
 
 .. currentmodule:: compas
 
-
 .. toctree::
     :maxdepth: 1
 

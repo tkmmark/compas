@@ -18,6 +18,7 @@ class PolylineArtist(Artist):
         self.linewidth = linewidth
         self.linestyle = linestyle
         self.color = color
+        self._points_artists = []
 
     @property
     def data(self):
@@ -31,6 +32,9 @@ class PolylineArtist(Artist):
                         color=self.color,
                         zorder=self.zorder)
         self.mpl_line = self.plotter.axes.add_line(line2d)
+        if self._draw_points:
+            for point in self.polyline:
+                self._points_artists.append(self.plotter.add(point))
 
     def redraw(self):
         x, y, _ = zip(* self.polyline.points)
@@ -48,24 +52,29 @@ if __name__ == '__main__':
 
     from random import uniform
     from compas.geometry import Box
-    from compas.geometry import Polyline
+    from compas.geometry import Polyline, Point
     from compas_plotters import GeometryPlotter
 
-    n = 100
-    box = Box.from_width_height_depth(10, 3, 5)
+    n = 50
+    fac = 10
+    box = Box.from_width_height_depth(10 * fac, 3 * fac, 5 * fac)
 
+    plotter = GeometryPlotter(show_axes=False)
     x, y, _ = zip(* box.points)
     xmin, xmax = min(x), max(x)
     ymin, ymax = min(y), max(y)
-    x = [uniform(xmin, xmax) for i in range(n)]
-    y = [uniform(ymin, ymax) for i in range(n)]
-    z = [0] * n
-    points = zip(x, y, z)
+    print(xmin, xmax, ymin, ymax)
 
-    plotter = GeometryPlotter(show_axes=False)
+    for i in range(3):
+        x = [uniform(xmin, xmax) for i in range(n)]
+        y = [uniform(ymin, ymax) for i in range(n)]
+        z = [0] * n
+        points = zip(x, y, z)
+        line = Polyline(points)
+        plotter.add(line, draw_points=True, color=(uniform(0, 1), uniform(0, 1), uniform(0, 1)))
 
-    line = Polyline(points)
+        # pts = [Point(*_pt) for _pt in line]
+        # [plotter.add(_pt) for _pt in pts]
 
-    plotter.add(line)
     plotter.zoom_extents()
     plotter.show()

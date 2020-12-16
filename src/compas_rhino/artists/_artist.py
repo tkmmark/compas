@@ -25,6 +25,10 @@ class BaseArtist(object):
         self._guids = []
 
     @staticmethod
+    def registered_artist_types():
+        return [_ITEM_ARTIST[item_type] for item_type in _ITEM_ARTIST]
+        
+    @staticmethod
     def register(item_type, artist_type):
         _ITEM_ARTIST[item_type] = artist_type
 
